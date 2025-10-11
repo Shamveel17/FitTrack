@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Workouts{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-md">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">🏋️ Workouts</h1>
+        <a href="{{ url_for('main.add_workout') }}" 
+           class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+            ➕ Add Workout
+        </a>
+    </div>
+
+    <ul class="space-y-3">
+        {% for w in workouts %}
+        <li class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+            <span>
+                <strong>{{ w.date }}</strong> - {{ w.exercise }} 
+                ({{ w.sets }}x{{ w.reps }} @ {{ w.weight }}kg)
+            </span>
+            <span class="space-x-2">
+                <a href="{{ url_for('main.edit_workout', id=w.id) }}" 
+                   class="text-blue-600 hover:underline">Edit</a>
+                <a href="{{ url_for('main.delete_workout', id=w.id) }}" 
+                   class="text-red-600 hover:underline">Delete</a>
+            </span>
+        </li>
+        {% else %}
+        <li class="text-gray-500 italic">No workouts yet.</li>
+        {% endfor %}
+    </ul>
+
+    <p class="mt-6 text-sm">
+        <a href="{{ url_for('main.dashboard') }}" class="text-blue-600 hover:underline">⬅ Back to Dashboard</a>
+    </p>
+</div>
+{% endblock %}

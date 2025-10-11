@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+{% if goals %}
+  <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-xl shadow-md mb-4">
+    <strong>⚠️ Goal Reminder:</strong>
+    <ul class="list-disc ml-6">
+      {% for goal in goals %}
+        <li>{{ goal.title }} (Due: {{ goal.deadline.strftime("%Y-%m-%d") }})</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+
+<h1 class="text-3xl font-bold mb-6">Welcome {{ current_user.name }} 👋</h1>
+
+<div class="grid gap-6 md:grid-cols-2">
+    <!-- Workouts / Week -->
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-2">🏋️ Workouts / Week (8 weeks)</h2>
+        <div class="h-60">
+            <canvas id="workoutsPerWeek"></canvas>
+        </div>
+        <p class="text-gray-500 text-sm mt-2">Shows your consistency per week.</p>
+    </div>
+
+    <!-- Daily Calories -->
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-2">🔥 Daily Calories (14 days)</h2>
+        <div class="h-60">
+            <canvas id="dailyCalories"></canvas>
+        </div>
+        <p class="text-gray-500 text-sm mt-2">Track intake trend day by day.</p>
+    </div>
+
+    <!-- Macro Split -->
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-2">🍽️ Macro Split (7 days)</h2>
+        <div class="h-60 flex justify-center items-center">
+            <canvas id="macroDonut" class="w-48 h-48"></canvas>
+        </div>
+        <p class="text-gray-500 text-sm mt-2">Protein vs Carbs vs Fats.</p>
+    </div>
+
+    <!-- Weight Trend -->
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-2">⚖️ Weight Trend (90 days)</h2>
+        <div class="h-60">
+            <canvas id="weightTrend"></canvas>
+        </div>
+        <p class="text-gray-500 text-sm mt-2">Longer-term movement of body weight.</p>
+    </div>
+</div>
+{% if ai_advice %}
+<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mt-6 rounded">
+    <h3 class="font-semibold mb-2">🤖 AI Coach Advice</h3>
+    <p>{{ ai_advice|safe }}</p>
+</div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Data from Flask
+    const weeklyLabels = {{ weekly_labels|tojson }};
+    const weeklyData   = {{ weekly_data|tojson }};
+    const calLabels    = {{ cal_labels|tojson }};
+    const calValues    = {{ cal_values|tojson }};
+    const macroData    = [{{ protein|default(0) }}, {{ carbs|default(0) }}, {{ fats|default(0) }}];
+    const weightLabels = {{ weight_labels|tojson }};
+    const weightValues = {{ weight_values|tojson }};
+
+    // Workouts per Week
+    new Chart(document.getElementById('workoutsPerWeek'), {
+      type: 'bar',
+      data: { labels: weeklyLabels, datasets: [{ label: 'Workouts', data: weeklyData, backgroundColor: '#4F46E5' }] },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Daily Calories
+    new Chart(document.getElementById('dailyCalories'), {
+      type: 'line',
+      data: { labels: calLabels, datasets: [{ label: 'Calories', data: calValues, borderColor: '#EF4444', backgroundColor: '#FEE2E2', tension: 0.3 }] },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Macro Donut
+    new Chart(document.getElementById('macroDonut'), {
+      type: 'doughnut',
+      data: { labels: ['Protein', 'Carbs', 'Fats'], datasets: [{ data: macroData, backgroundColor: ['#10B981', '#3B82F6', '#F59E0B'] }] },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Weight Trend
+    new Chart(document.getElementById('weightTrend'), {
+      type: 'line',
+      data: { labels: weightLabels, datasets: [{ label: 'Weight (kg)', data: weightValues, borderColor: '#6366F1', backgroundColor: '#E0E7FF', tension: 0.3 }] },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+</script>
+
+{% endblock %}

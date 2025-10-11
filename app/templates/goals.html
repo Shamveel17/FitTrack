@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold">🎯 Goals</h1>
+    <a href="{{ url_for('main.add_goal') }}" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">➕ Add Goal</a>
+  </div>
+
+  <table class="w-full border-collapse bg-white shadow-md rounded-2xl overflow-hidden">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="p-3 border">Target Weight</th>
+        <th class="p-3 border">Deadline</th>
+        <th class="p-3 border">Focus</th>
+        <th class="p-3 border">Status</th>
+        <th class="p-3 border">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for g in goals %}
+      <tr>
+        <td class="p-3 border">{{ g.target_weight }} kg</td>
+        <td class="p-3 border">{{ g.deadline }}</td>
+        <td class="p-3 border capitalize">{{ g.focus }}</td>
+        <td class="p-3 border">
+          {% if not g.completed %}
+            <form action="{{ url_for('main.complete_goal', goal_id=g.id) }}" method="POST" style="display:inline;">
+              <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">
+                Mark Complete
+              </button>
+            </form>
+          {% else %}
+            <span class="text-green-600 font-bold">✔ Completed</span>
+          {% endif %}
+        </td>
+        <td class="p-3 border">
+          <a href="{{ url_for('main.edit_goal', id=g.id) }}" class="text-blue-500 hover:underline">Edit</a> |
+          <a href="{{ url_for('main.delete_goal', id=g.id) }}" class="text-red-500 hover:underline">Delete</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="p-3 text-center text-gray-500">No goals set yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
